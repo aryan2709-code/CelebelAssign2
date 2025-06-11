@@ -10,8 +10,28 @@ function App() {
   const [storageEnabled, setStorageEnabled] = useState(() => {
     return localStorage.getItem("storageDisabled") !== "true";
   });
+  
+  const [sortByRecent, setSortByRecent] = useState(true);
+  const [filter, setFilter] = useState("ALL"); // "ALL", "COMPLETED", "INCOMPLETE"
 
-  // Helper function to update todos and optionally save to localStorage
+  // Filter and sort todos for display
+  const getFilteredAndSortedTodos = () => {
+    let filteredTodos = todos;
+    
+    // Apply filter
+    if (filter === "COMPLETED") {
+      filteredTodos = todos.filter(todo => todo.completed);
+    } else if (filter === "INCOMPLETE") {
+      filteredTodos = todos.filter(todo => !todo.completed);
+    }
+    
+    // Apply sort
+    if (sortByRecent) {
+      return [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt); // Recent first
+    } else {
+      return [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt); // Oldest first
+    }
+  };
   const updateTodos = (newTodos) => {
     setTodos(newTodos);
     if (storageEnabled) {
@@ -82,18 +102,33 @@ function App() {
         </h1>
         <AddToDoComponent addTodos={addTodos} />
         <div className="flex gap-2 mb-6">
-          <button className="border rounded-lg p-2 bg-slate-800 text-white">
-            Sort:Recent
+          <button 
+            onClick={() => setSortByRecent(!sortByRecent)}
+            className={`border rounded-lg p-2 ${sortByRecent ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+          >
+            Sort: {sortByRecent ? 'Recent First' : 'Oldest First'}
           </button>
-          <button className="border rounded-lg p-2 bg-slate-800 text-white">
+          <button 
+            onClick={() => setFilter("ALL")}
+            className={`border rounded-lg p-2 ${filter === "ALL" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+          >
+            All Tasks
+          </button>
+          <button 
+            onClick={() => setFilter("COMPLETED")}
+            className={`border rounded-lg p-2 ${filter === "COMPLETED" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+          >
             Completed Tasks
           </button>
-          <button className="border rounded-lg p-2 bg-slate-800 text-white">
+          <button 
+            onClick={() => setFilter("INCOMPLETE")}
+            className={`border rounded-lg p-2 ${filter === "INCOMPLETE" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+          >
             Incomplete Tasks
           </button>
         </div>
         <ToDoList
-          todos={todos}
+          todos={getFilteredAndSortedTodos()}
           deleteTodo={deleteTodo}
           toggleCompleted={toggleCompleted}
         />
@@ -103,14 +138,26 @@ function App() {
 }
 
 function ToDoList({ todos, deleteTodo, toggleCompleted }) {
+  if (todos.length === 0) {
+    return (
+      <div className="w-fit flex-col">
+        <p className="text-gray-700 text-lg font-medium p-4">No tasks to display</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-fit flex-col">
       {todos.map((todo) => (
         <div
           key={todo.id}
-          className="p-2 flex justify-between border mt-2 bg-slate-400 border-purple-950 items-center"
+          className={`p-2 flex justify-between border mt-2 border-purple-950 items-center ${
+            todo.completed ? 'bg-green-200' : 'bg-slate-400'
+          }`}
         >
-          <p className="mr-4 text-lg font-medium">{todo.text}</p>
+          <p className={`mr-4 text-lg font-medium ${todo.completed ? 'line-through text-gray-600' : ''}`}>
+            {todo.text}
+          </p>
           <div className="flex gap-2">
             <button
               className="mr-2 border rounded-lg p-2 bg-red-950 text-white"
