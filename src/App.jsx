@@ -1,26 +1,23 @@
-import { useEffect, useState, useRef } from "react";
+import { useState, useRef } from "react";
 
 function App() {
+  // Load initial data
   const [todos, setTodos] = useState(() => {
-    // On initial load, always try to load todos from localStorage
     const saved = localStorage.getItem("todos");
     return saved ? JSON.parse(saved) : [];
   });
   
-  const [store, setStore] = useState(() => {
-    // Check if storage was previously disabled
+  const [storageEnabled, setStorageEnabled] = useState(() => {
     return localStorage.getItem("storageDisabled") !== "true";
   });
-  
-  const [sort, setSort] = useState(true);
-  const [showCompletedTasks, setShowCompletedTasks] = useState(true);
 
-  // Auto-save todos whenever they change (if storage is enabled)
-  useEffect(() => {
-    if (store) {
-      localStorage.setItem("todos", JSON.stringify(todos));
+  // Helper function to update todos and optionally save to localStorage
+  const updateTodos = (newTodos) => {
+    setTodos(newTodos);
+    if (storageEnabled) {
+      localStorage.setItem("todos", JSON.stringify(newTodos));
     }
-  }, [todos, store]);
+  };
 
   function addTodos(text) {
     text = text.trim();
@@ -38,23 +35,23 @@ function App() {
       text,
       createdAt: Date.now()
     };
-    setTodos((prev) => [...prev, task]);
+    updateTodos([...todos, task]);
   }
 
   function toggleCompleted(id) {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed } : todo
-      )
+    const newTodos = todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
     );
+    updateTodos(newTodos);
   }
 
   function deleteTodo(id) {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    const newTodos = todos.filter((todo) => todo.id !== id);
+    updateTodos(newTodos);
   }
 
   function handleStorageToggle() {
-    if (store) {
+    if (storageEnabled) {
       // Disable storage
       localStorage.setItem("storageDisabled", "true");
       localStorage.removeItem("todos");
@@ -65,7 +62,7 @@ function App() {
       localStorage.setItem("todos", JSON.stringify(todos));
       alert("Local storage enabled. Your tasks will now be saved.");
     }
-    setStore(!store);
+    setStorageEnabled(!storageEnabled);
   }
 
   return (
@@ -75,7 +72,7 @@ function App() {
           onClick={handleStorageToggle}
           className="border rounded-lg px-4 py-2 bg-orange-500 text-black font-semibold"
         >
-          {store ? "Disable Storage" : "Enable Storage"}
+          {storageEnabled ? "Disable Storage" : "Enable Storage"}
         </button>
       </div>
 
