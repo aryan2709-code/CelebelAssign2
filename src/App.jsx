@@ -4,6 +4,7 @@ import { useRef } from "react";
 // We are trying to make a to-do application that validates to do tasks for empty tasks and tasks with a word limit of 100. ToDos can be sorted 
 function App() {
 const [todos , setTodos] = useState([]);
+const [store , setStore] = useState(true);
 
 function addTodos(text) {
   // convert text to a object and then add to the todos array
@@ -27,34 +28,36 @@ function addTodos(text) {
  // use the setTodos Function to add this todo into the existing todos
  setTodos((prev) => ([...prev,task]))
 }
-
+//function to toggle the state of a todo
 function toggleCompleted(id)
 {
   setTodos((prev) => prev.map((todo) => todo.id === id ? {...todo , completed : !todo.completed} : todo ))
 }
-
 // function to delete the todo
 function deleteTodo(id) 
 {
    setTodos(prev => prev.filter(todo => todo.id !== id ));
 }
 
-
-// function to sort todos based on their arrival order , i.e time of creation
-function sort() {
-  const sorted = [...todos].sort((a,b) => b.createdAt - a.createdAt ) // [...todos creates a shallow copy ]
-  setTodos(sorted)
-}
-
 return (
-  <div className="flex flex-col  items-center bg-fuchsia-300 h-screen" >
+   <div className=" relative bg-fuchsia-300 h-screen">
+    <div className="absolute top-4 right-4">
+      <button className="border rounded-lg px-4 py-2 bg-yellow-500 text-black font-semibold">
+        Enable Storage
+      </button>
+    </div>
+   <div className="flex flex-col  items-center" >
      <h1 className="text-4xl text-gray-950 font-bold mt-2" >MANAGE YOUR TASKS EFFECTIVELY!!</h1>
      <AddToDoComponent addTodos = {addTodos} />
+     <div className="flex gap-2 mb-6">
+      <button className="border rounded-lg p-2 bg-slate-800 text-white" >Sort:Recent</button>
+      <button className="border rounded-lg p-2 bg-slate-800 text-white">Completed Tasks</button>
+      <button className="border rounded-lg p-2 bg-slate-800 text-white">Incomplete Tasks</button>
+     </div>
     <ToDoList todos = {todos} deleteTodo={deleteTodo} toggleCompleted = {toggleCompleted} />
   </div>
+   </div>
 )
-
-
 }
 
 function ToDoList({todos , deleteTodo , toggleCompleted})
