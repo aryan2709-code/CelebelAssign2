@@ -1,37 +1,34 @@
 import { useState, useRef } from "react";
 
 function App() {
-  // Load initial data
   const [todos, setTodos] = useState(() => {
     const saved = localStorage.getItem("todos");
     return saved ? JSON.parse(saved) : [];
   });
-  
+
   const [storageEnabled, setStorageEnabled] = useState(() => {
     return localStorage.getItem("storageDisabled") !== "true";
   });
-  
-  const [sortByRecent, setSortByRecent] = useState(true);
-  const [filter, setFilter] = useState("ALL"); // "ALL", "COMPLETED", "INCOMPLETE"
 
-  // Filter and sort todos for display
+  const [sortByRecent, setSortByRecent] = useState(true);
+  const [filter, setFilter] = useState("ALL");
+
   const getFilteredAndSortedTodos = () => {
     let filteredTodos = todos;
-    
-    // Apply filter
+
     if (filter === "COMPLETED") {
       filteredTodos = todos.filter(todo => todo.completed);
     } else if (filter === "INCOMPLETE") {
       filteredTodos = todos.filter(todo => !todo.completed);
     }
-    
-    // Apply sort
+
     if (sortByRecent) {
-      return [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt); // Recent first
+      return [...filteredTodos].sort((a, b) => b.createdAt - a.createdAt);
     } else {
-      return [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt); // Oldest first
+      return [...filteredTodos].sort((a, b) => a.createdAt - b.createdAt);
     }
   };
+
   const updateTodos = (newTodos) => {
     setTodos(newTodos);
     if (storageEnabled) {
@@ -59,25 +56,23 @@ function App() {
   }
 
   function toggleCompleted(id) {
-    const newTodos = todos.map((todo) =>
+    const newTodos = todos.map(todo =>
       todo.id === id ? { ...todo, completed: !todo.completed } : todo
     );
     updateTodos(newTodos);
   }
 
   function deleteTodo(id) {
-    const newTodos = todos.filter((todo) => todo.id !== id);
+    const newTodos = todos.filter(todo => todo.id !== id);
     updateTodos(newTodos);
   }
 
   function handleStorageToggle() {
     if (storageEnabled) {
-      // Disable storage
       localStorage.setItem("storageDisabled", "true");
       localStorage.removeItem("todos");
       alert("Local storage disabled. Previously saved tasks have been removed.");
     } else {
-      // Enable storage
       localStorage.removeItem("storageDisabled");
       localStorage.setItem("todos", JSON.stringify(todos));
       alert("Local storage enabled. Your tasks will now be saved.");
@@ -86,43 +81,43 @@ function App() {
   }
 
   return (
-    <div className="relative bg-fuchsia-300 h-screen">
+    <div className="relative bg-gradient-to-b from-slate-800 to-slate-900 min-h-screen text-white">
       <div className="absolute top-4 right-4">
         <button
           onClick={handleStorageToggle}
-          className="border rounded-lg px-4 py-2 bg-orange-500 text-black font-semibold"
+          className="border rounded-lg px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold"
         >
           {storageEnabled ? "Disable Storage" : "Enable Storage"}
         </button>
       </div>
 
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl text-gray-950 font-bold mt-2">
+        <h1 className="text-4xl text-white font-bold mt-6 mb-4">
           MANAGE YOUR TASKS EFFECTIVELY!!
         </h1>
         <AddToDoComponent addTodos={addTodos} />
-        <div className="flex gap-2 mb-6">
-          <button 
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
             onClick={() => setSortByRecent(!sortByRecent)}
-            className={`border rounded-lg p-2 ${sortByRecent ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+            className={`border rounded-lg p-2 ${sortByRecent ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-700 hover:bg-slate-600'} text-white`}
           >
             Sort: {sortByRecent ? 'Recent First' : 'Oldest First'}
           </button>
-          <button 
+          <button
             onClick={() => setFilter("ALL")}
-            className={`border rounded-lg p-2 ${filter === "ALL" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+            className={`border rounded-lg p-2 ${filter === "ALL" ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-700 hover:bg-slate-600'} text-white`}
           >
             All Tasks
           </button>
-          <button 
+          <button
             onClick={() => setFilter("COMPLETED")}
-            className={`border rounded-lg p-2 ${filter === "COMPLETED" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+            className={`border rounded-lg p-2 ${filter === "COMPLETED" ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-700 hover:bg-slate-600'} text-white`}
           >
             Completed Tasks
           </button>
-          <button 
+          <button
             onClick={() => setFilter("INCOMPLETE")}
-            className={`border rounded-lg p-2 ${filter === "INCOMPLETE" ? 'bg-blue-600' : 'bg-slate-800'} text-white`}
+            className={`border rounded-lg p-2 ${filter === "INCOMPLETE" ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-700 hover:bg-slate-600'} text-white`}
           >
             Incomplete Tasks
           </button>
@@ -141,32 +136,32 @@ function ToDoList({ todos, deleteTodo, toggleCompleted }) {
   if (todos.length === 0) {
     return (
       <div className="w-fit flex-col">
-        <p className="text-gray-700 text-lg font-medium p-4">No tasks to display</p>
+        <p className="text-gray-300 text-lg font-medium p-4">No tasks to display</p>
       </div>
     );
   }
 
   return (
     <div className="w-fit flex-col">
-      {todos.map((todo) => (
+      {todos.map(todo => (
         <div
           key={todo.id}
           className={`p-2 flex justify-between border mt-2 border-purple-950 items-center ${
-            todo.completed ? 'bg-green-200' : 'bg-slate-400'
+            todo.completed ? 'bg-emerald-100' : 'bg-slate-300'
           }`}
         >
-          <p className={`mr-4 text-lg font-medium ${todo.completed ? 'line-through text-gray-600' : ''}`}>
+          <p className={`mr-4 text-lg font-medium ${todo.completed ? 'line-through text-gray-600' : 'text-black'}`}>
             {todo.text}
           </p>
           <div className="flex gap-2">
             <button
-              className="mr-2 border rounded-lg p-2 bg-red-950 text-white"
+              className="mr-2 border rounded-lg p-2 bg-red-600 hover:bg-red-700 text-white"
               onClick={() => deleteTodo(todo.id)}
             >
               Delete
             </button>
             <button
-              className="border rounded-lg p-2 bg-green-950 text-white"
+              className="border rounded-lg p-2 bg-emerald-700 hover:bg-emerald-800 text-white"
               onClick={() => toggleCompleted(todo.id)}
             >
               {todo.completed ? "Mark as Incomplete" : "Mark as Complete"}
@@ -183,13 +178,13 @@ function AddToDoComponent({ addTodos }) {
   return (
     <div className="flex ml-4 mt-6 mb-6">
       <input
-        className="border rounded-xl border-black h-10 w-96 mr-2 p-2"
+        className="border border-slate-600 rounded-xl bg-slate-100 text-black h-10 w-96 mr-2 p-2"
         ref={inputRef}
         type="text"
-        placeholder="Enter Your task here ..."
+        placeholder="Enter your task here ..."
       />
       <button
-        className="border rounded-xl bg-slate-950 text-white p-2"
+        className="border rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white p-2"
         onClick={() => {
           addTodos(inputRef.current.value);
           inputRef.current.value = "";
@@ -202,4 +197,3 @@ function AddToDoComponent({ addTodos }) {
 }
 
 export default App;
-
